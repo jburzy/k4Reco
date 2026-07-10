@@ -163,9 +163,10 @@ DDPlanarDigi::operator()(const edm4hep::SimTrackerHitCollection& simTrackerHits,
 
     // Smear time of the hit and apply the time window cut if needed
     double hitT = hit.getTime();
+    float resT = 0;
 
     if (m_resTLayer.size() && m_resTLayer[0] > 0) {
-      float resT = m_resTLayer.size() > 1 ? m_resTLayer[layer] : m_resTLayer[0];
+      resT = m_resTLayer.size() > 1 ? m_resTLayer[layer] : m_resTLayer[0];
 
       double tSmear = resT > 0 ? rng_engine.Gaus(0, resT) : 0;
       ++(*m_histograms[hT])[resT > 0 ? tSmear / resT : 0];
@@ -278,6 +279,8 @@ DDPlanarDigi::operator()(const edm4hep::SimTrackerHitCollection& simTrackerHits,
 
     trkHit.setPosition(newPos.const_array());
     trkHit.setTime(hitT);
+    // Persist the time resolution used for the smearing; 0 means time smearing was disabled
+    trkHit.setTimeError(resT);
     trkHit.setEDep(hit.getEDep());
 
     float u_direction[2];
